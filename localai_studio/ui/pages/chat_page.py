@@ -110,14 +110,26 @@ class ChatPage(BasePage):
         self._chat_view.add_message(role="user", content=text)
 
         client = self._ollama.client
+
         if not client.is_connected():
-            reply = "_Ollama is disconnected._ Start Ollama and wait for the status bar to show Connected."
-        elif client.current_model() is None:
-            reply = "_No model selected._ Install a model in Ollama, then pick one from the selector."
-        else:
             reply = (
-                f"_Chat generation is not wired yet._ "
-                f"Your message will be sent to **{client.current_model()}** once streaming is implemented."
+                "_Ollama is disconnected._ "
+                "Start Ollama and wait for the status bar to show Connected."
             )
 
-        self._chat_view.add_message(role="assistant", content=reply)
+        elif client.current_model() is None:
+            reply = (
+                "_No model selected._ "
+                "Install a model in Ollama, then pick one from the selector."
+            )
+
+        else:
+            try:
+                reply = client.chat(text)
+            except Exception as e:
+                reply = f"Error: {e}"
+
+        self._chat_view.add_message(
+            role="assistant",
+            content=reply,
+        )
