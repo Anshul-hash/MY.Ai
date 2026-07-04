@@ -1,19 +1,20 @@
-venv/
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
 
-logs/
-memory/
-
-build/
-dist/
-
-*.spec
-
+# Virtual environment
+venv/
 .env
 
-.idea/
+# IDEs
 .vscode/
+.idea/
 
-*.db
+# OS
+.DS_Store
+Thumbs.db
+
+# Qt
+*.qmlc
+*.jsc
