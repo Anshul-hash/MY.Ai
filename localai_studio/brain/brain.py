@@ -3,72 +3,49 @@
 from __future__ import annotations
 
 from localai_studio.memory.memory_manager import MemoryManager
+from localai_studio.brain.profile import Profile
+from localai_studio.brain.projects import Projects
+from localai_studio.brain.preferences import Preferences
+from localai_studio.brain.conversation import Conversation
 
 
 class Brain:
-    """Central coordinator for ZENA."""
+    """Central coordinator for all ZENA subsystems."""
 
-    def __init__(self):
-
+    def __init__(self) -> None:
+        # Shared long-term memory manager
         self.memory = MemoryManager()
 
-    # -------------------------
-    # Memory
-    # -------------------------
+        # Domain modules (all share the same MemoryManager)
+        self.profile = Profile(self.memory)
+        self.projects = Projects(self.memory)
+        self.preferences = Preferences(self.memory)
 
-    def remember(
-        self,
-        category: str,
-        content: str,
-        importance: int = 5,
-    ) -> None:
+        # Conversation history
+        self.conversation = Conversation()
 
-        self.memory.save(
-            category=category,
-            content=content,
-            importance=importance,
-        )
+    def summary(self) -> dict:
+        """Return a readable summary of the Brain."""
 
-    def recall(self, keyword: str):
+        return {
+            "recent_memories": [
+                dict(row)
+             for row in self.memory.recent(limit=10)
+        ],
 
-        return self.memory.search(keyword)
+            "recent_projects": [
+                dict(row)
+                for row in self.projects.recent(limit=5)
+        ],
 
-    def recent_memories(self, limit: int = 10):
+        "recent_preferences": [
+            dict(row)
+            for row in self.preferences.recent(limit=5)
+        ],
 
-        return self.memory.recent(limit)
-
-    # -------------------------
-    # Profile
-    # -------------------------
-
-    def set_name(self, name: str):
-
-        self.remember(
-            "profile",
-            f"User's name is {name}",
-            10,
-        )
-
-    # -------------------------
-    # Projects
-    # -------------------------
-
-    def add_project(self, project: str):
-
-        self.remember(
-            "project",
-            project,
-            9,
-        )
-
-    # -------------------------
-    # Preferences
-    # -------------------------
-
-    def add_preference(self, preference: str):
-
-        self.remember(
-            "preference",
-            preference,
-            8,
-        )
+        "recent_conversation": [
+            dict(row)
+            for row in self.conversation.last_messages(limit=10)
+        ],
+    }
+  
