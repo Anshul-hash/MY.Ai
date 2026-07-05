@@ -11,30 +11,43 @@ class Projects:
     def __init__(self, memory: MemoryManager):
         self.memory = memory
 
-    def add(self, name: str) -> None:
+    def add(self, name: str, description: str = "") -> None:
+        """Add a new project."""
+
+        content = name
+
+        if description:
+            content += f" | {description}"
+
         self.memory.save(
             category="project",
-            content=name,
+            content=content,
             importance=9,
         )
 
     def search(self, keyword: str):
-        return self.memory.search(keyword)
-
-    def all(self):
-        rows = self.memory.search("")
+        """Search projects."""
 
         return [
             row
-            for row in rows
+            for row in self.memory.search(keyword)
+            if row["category"] == "project"
+        ]
+
+    def all(self):
+        """Return all projects."""
+
+        return [
+            row
+            for row in self.memory.search("")
             if row["category"] == "project"
         ]
 
     def recent(self, limit: int = 10):
-        rows = self.memory.recent(limit)
+        """Return recent projects."""
 
         return [
             row
-            for row in rows
+            for row in self.memory.recent(limit)
             if row["category"] == "project"
         ]
